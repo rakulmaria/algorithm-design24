@@ -1,0 +1,55 @@
+{'Charlotte': ['Bingley', 'Darcy', 'Collins', 'Wickham'], 'Elizabeth': ['Wickham', 'Darcy', 'Bingley', 'Collins'], 'Jane': ['Bingley', 'Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Wickham', 'Darcy', 'Collins']}
+{'Bingley': ['Jane', 'Elizabeth', 'Lydia', 'Charlotte'], 'Collins': ['Jane', 'Elizabeth', 'Lydia', 'Charlotte'], 'Darcy': ['Elizabeth', 'Jane', 'Charlotte', 'Lydia'], 'Wickham': ['Lydia', 'Jane', 'Elizabeth', 'Charlotte']}
+matches lenght: 0
+*** matches: {}
+in proposers ... current proposer: Charlotte
+full lst: {'Charlotte': ['Bingley', 'Darcy', 'Collins', 'Wickham'], 'Elizabeth': ['Wickham', 'Darcy', 'Bingley', 'Collins'], 'Jane': ['Bingley', 'Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Wickham', 'Darcy', 'Collins']}
+matches so far {'Charlotte': 'Bingley'}
+in proposers ... current proposer: Elizabeth
+full lst: {'Charlotte': ['Darcy', 'Collins', 'Wickham'], 'Elizabeth': ['Wickham', 'Darcy', 'Bingley', 'Collins'], 'Jane': ['Bingley', 'Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Wickham', 'Darcy', 'Collins']}
+matches so far {'Charlotte': 'Bingley', 'Elizabeth': 'Wickham'}
+in proposers ... current proposer: Jane
+full lst: {'Charlotte': ['Darcy', 'Collins', 'Wickham'], 'Elizabeth': ['Darcy', 'Bingley', 'Collins'], 'Jane': ['Bingley', 'Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Wickham', 'Darcy', 'Collins']}
+rejector might swap partner Bingley
+previous partner: Charlotte
+rank list ['Jane', 'Elizabeth', 'Lydia', 'Charlotte']
+previous rank: 3 newpartner rank: 0
+updated matches: {'Elizabeth': 'Wickham', 'Jane': 'Bingley'}
+in proposers ... current proposer: Lydia
+full lst: {'Charlotte': ['Darcy', 'Collins', 'Wickham'], 'Elizabeth': ['Darcy', 'Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Wickham', 'Darcy', 'Collins']}
+rejector might swap partner Bingley
+previous partner: Jane
+rank list ['Jane', 'Elizabeth', 'Lydia', 'Charlotte']
+rejector might swap partner Wickham
+previous partner: Elizabeth
+rank list ['Lydia', 'Jane', 'Elizabeth', 'Charlotte']
+previous rank: 2 newpartner rank: 0
+updated matches: {'Jane': 'Bingley', 'Lydia': 'Wickham'}
+matches lenght: 2
+*** matches: {'Jane': 'Bingley', 'Lydia': 'Wickham'}
+in proposers ... current proposer: Charlotte
+full lst: {'Charlotte': ['Darcy', 'Collins', 'Wickham'], 'Elizabeth': ['Darcy', 'Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Darcy', 'Collins']}
+matches so far {'Jane': 'Bingley', 'Lydia': 'Wickham', 'Charlotte': 'Darcy'}
+in proposers ... current proposer: Elizabeth
+full lst: {'Charlotte': ['Collins', 'Wickham'], 'Elizabeth': ['Darcy', 'Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Darcy', 'Collins']}
+rejector might swap partner Darcy
+previous partner: Charlotte
+rank list ['Elizabeth', 'Jane', 'Charlotte', 'Lydia']
+previous rank: 2 newpartner rank: 0
+updated matches: {'Jane': 'Bingley', 'Lydia': 'Wickham', 'Elizabeth': 'Darcy'}
+in proposers ... current proposer: Jane
+full lst: {'Charlotte': ['Collins', 'Wickham'], 'Elizabeth': ['Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Darcy', 'Collins']}
+in proposers ... current proposer: Lydia
+full lst: {'Charlotte': ['Collins', 'Wickham'], 'Elizabeth': ['Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Darcy', 'Collins']}
+matches lenght: 3
+*** matches: {'Jane': 'Bingley', 'Lydia': 'Wickham', 'Elizabeth': 'Darcy'}
+in proposers ... current proposer: Charlotte
+full lst: {'Charlotte': ['Collins', 'Wickham'], 'Elizabeth': ['Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Darcy', 'Collins']}
+matches so far {'Jane': 'Bingley', 'Lydia': 'Wickham', 'Elizabeth': 'Darcy', 'Charlotte': 'Collins'}
+in proposers ... current proposer: Elizabeth
+full lst: {'Charlotte': ['Wickham'], 'Elizabeth': ['Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Darcy', 'Collins']}
+in proposers ... current proposer: Jane
+full lst: {'Charlotte': ['Wickham'], 'Elizabeth': ['Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Darcy', 'Collins']}
+in proposers ... current proposer: Lydia
+full lst: {'Charlotte': ['Wickham'], 'Elizabeth': ['Bingley', 'Collins'], 'Jane': ['Wickham', 'Darcy', 'Collins'], 'Lydia': ['Bingley', 'Darcy', 'Collins']}
+Matches found: {'Jane': 'Bingley', 'Lydia': 'Wickham', 'Elizabeth': 'Darcy', 'Charlotte': 'Collins'}

@@ -1,0 +1,41 @@
+0
+Current proposer: Chandler
+Current rejector: Monica
+Rejector hasn't been matched - adding to the dictionary
+1
+Current proposer: Joey
+Current rejector: Rachel
+Rejector hasn't been matched - adding to the dictionary
+2
+Current proposer: Ross
+Current rejector: Rachel
+Rejector has already been matched - checking if they prefer new match
+length of rejectors: 3
+length of rejectors: 3
+matches rank was found and updated: 2
+rejector also had interest in current proposer
+rejector changed match
+{'Monica': 'Chandler', 'Rachel': 'Ross'}
+{'Monica': 'Chandler', 'Rachel': 'Ross'}
+2
+Current proposer: Chandler
+Current rejector: Rachel
+Rejector has already been matched - checking if they prefer new match
+length of rejectors: 3
+proposers rank was found and updated: 1
+length of rejectors: 3
+rejector also had interest in current proposer
+no change
+2
+Current proposer: Joey
+Current rejector: Phoebe
+Rejector hasn't been matched - adding to the dictionary
+3
+Current proposer: Ross
+Current rejector: Rachel
+Rejector has already been matched - checking if they prefer new match
+length of rejectors: 3
+length of rejectors: 3
+rejector also had interest in current proposer
+no change
+{'Monica': 'Chandler', 'Rachel': 'Ross', 'Phoebe': 'Joey'}
