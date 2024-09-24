@@ -9,7 +9,7 @@ n = int(n)
 file.write(str(C) + " " + str(n) + "\n")
 
 for _ in range(n):
-    v = random.randrange(1, C)
-    w = random.randrange(1, C)
+    v = random.randrange(1, 10000)
+    w = random.randrange(1, 10000)
 
     file.write(str(v) + " " + str(w) + "\n")
