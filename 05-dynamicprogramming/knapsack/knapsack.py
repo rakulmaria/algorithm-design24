@@ -1,3 +1,4 @@
+# just testing
 import numpy as np
 
 import sys
@@ -9,7 +10,7 @@ def print_memory(memory):
 def solve(i, C):
     if i == 0:
         return 0
-    if items[i][1] > C: # if the item weighs more than we have capacity of
+    if items[i][1] > C: # if the item weighs more than we have capacity of 
         return solve(i-1, C)
     
     drop = solve(i-1, C)
