@@ -1,11 +1,4 @@
-# just testing
-import numpy as np
-
 import sys
-
-def print_memory(memory):
-    for row in memory:
-        print(f"{row}")
 
 def solve(i, C):
     if i == 0:
@@ -20,7 +13,6 @@ def solve(i, C):
     memory[i][C] = res
     return res
 
-
 def backtrack(row, col):
     res = []
     while row > 0 and col > 0:
@@ -28,7 +20,6 @@ def backtrack(row, col):
             res.append(row-1)
             col -= items[row][1]
         row -= 1
-
     return res
 
 
@@ -39,25 +30,28 @@ while line:
     C, n = line.split()
     C = int(C)
     n = int(n)
-
-    # items is a list of tuples, with value and weight
-    items = np.empty((n + 1), tuple)
+    # items is a list of tuples, with value and weight. (0,0)
+    items = [(0, 0)]
 
     # the memory table, 2 x 2 array 
-    memory = np.zeros((n + 1, C + 1))
+    memory = [[0 for i in range(C+1)] for j in range(n+1)]
 
     for i in range(1, n+1):
         value, weight = input().split()
-        items[i] = (int(value), int(weight))
+        items.append((int(value), int(weight)))
 
     # solve the knapsack problem for this current knapsack
     solve(n, C)
 
     res = backtrack(len(memory)-1, len(memory[0])-1)
     lst = ""
+
+    # how many items were taken
     print(len(res))
+
     for i in range(len(res)-1, -1, -1):
-        lst += str(res[i]) + " "
+        print(res[i], end=" ")
+        #lst += str(res[i]) + " "
     print(lst)
     
     # startover
