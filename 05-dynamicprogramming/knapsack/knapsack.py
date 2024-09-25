@@ -1,28 +1,40 @@
 import sys
 
-def solve(i, C):
-    if i == 0:
-        return 0
-    if items[i][1] > C: # if the item weighs more than we have capacity of 
-        return solve(i-1, C)
+def solve(C, n, items, memory):
+    for i in range(1, n):
+        value = items[i][0]
+        weight = items[i][1]
+
+        for cur_cap in range(1, C):
+            # assume we don't take the current item
+            memory[i][cur_cap] = memory[i-1][cur_cap]
+            take = memory[i-1][cur_cap-weight] + value
+            drop = memory[i][cur_cap]
+
+            # is the weight of this item > the current capacity?
+            # and will including the current item lead to a better value compared to not including it?
+            if cur_cap >= weight and take > drop:
+                memory[i][cur_cap] = memory[i-1][cur_cap-weight] + value
+
+    results = []
+    cur_cap = C-1
+    str_result = ""
     
-    drop = solve(i-1, C)
-    take = items[i][0] + solve(i-1, C-items[i][1]) # value of current item + optimal solution of previous item
-    res = max(drop, take)
-
-    memory[i][C] = res
-    return res
-
-def backtrack(row, col):
-    res = []
-    while row > 0 and col > 0:
-        if memory[row][col] != memory[row-1][col]:
-            res.append(row-1)
-            col -= items[row][1]
-        row -= 1
-    return res
+    # backtrack the memory table to find the indices of the items we took
+    for i in range(n-1, 0, -1):
+        # if the item above this item is different, it means we took this item
+        if memory[i][cur_cap] != memory[i-1][cur_cap]:
+            results.append((items[i][2])-1)
+            cur_cap = cur_cap - items[i][1]
+    
+    # build the string and print the result
+    for i in range(len(results)-1, -1, -1):
+        str_result += str(results[i]) + " "
+    print(len(results))
+    print(str_result)
 
 
+# --- kattis
 
 line = sys.stdin.readline()
 
@@ -31,28 +43,17 @@ while line:
     C = int(C)
     n = int(n)
     # items is a list of tuples, with value and weight. (0,0)
-    items = [(0, 0)]
+    items = [(0, 0, 0)]
 
     # the memory table, 2 x 2 array 
     memory = [[0 for i in range(C+1)] for j in range(n+1)]
 
     for i in range(1, n+1):
         value, weight = input().split()
-        items.append((int(value), int(weight)))
+        items.append((int(value), int(weight), i))
 
-    # solve the knapsack problem for this current knapsack
-    solve(n, C)
+    # solve knapsack problem for the current knapsack
+    solve(C+1, n+1, items, memory)
 
-    res = backtrack(len(memory)-1, len(memory[0])-1)
-    lst = ""
-
-    # how many items were taken
-    print(len(res))
-
-    for i in range(len(res)-1, -1, -1):
-        print(res[i], end=" ")
-        #lst += str(res[i]) + " "
-    print(lst)
-    
     # startover
     line = sys.stdin.readline()
