@@ -22,7 +22,7 @@ def solve():
             items.append((int(value), int(weight)))
 
         # fill in the memory table
-        for item in range(len(memory)):
+        for item in range(n+1):
             # we just want 0s on the first row
             if item == 0:
                 continue
@@ -30,20 +30,20 @@ def solve():
             # take the value and weight of the item that we want to place in this row
             cur_value, cur_weight = items[item][0], items[item][1]
 
-            for capacity in range(len(memory[0])):
+            for capacity in range(C+1):
                 # we also just want 0s on the first column
                 if capacity == 0:
                     continue
-                
+
+                # get the value from the item directly above the current item
+                val_item_above = memory[item-1][capacity]
                 # we don't have space for this item, so we continue increasing the capacity
                 if capacity < cur_weight:
-                    memory[item][capacity] = memory[item-1][capacity]
+                    memory[item][capacity] = val_item_above
                     continue
 
                 # we have room - time for checking
                 else:
-                    # get the value from the item directly above the current item
-                    val_item_above = memory[item-1][capacity]
                     # and compute the value that we get from taking this item
                     val_current_item = cur_value + memory[item-1][capacity - cur_weight]
 
@@ -56,27 +56,26 @@ def solve():
 
         # now we want to backtrack our memory table and find the number of items taken and their indices
         total_items = 0
-        i = len(memory)-1
-        cap = len(memory[0])-1
         indices = []
-        current_item = memory[i][cap]
+        current_item = memory[n][C]
 
         while True:
             # we found all the items from our memory table
             if current_item == 0:
                 break
-            above_item = memory[i-1][cap]
+            above_item = memory[n-1][C]
+            new_C = items[n][1]
            
             if current_item != above_item:  # it means that we took the current item
-                indices.append(i-1) # i is not 0 indexed
-                current_item = memory[i-1][cap - items[i][1]]
+                indices.append(n-1) # i is not 0 indexed
+                current_item = memory[n-1][C - new_C]
                 
-                cap -= items[i][1]
-                i -= 1
+                C -= new_C
+                n -= 1
                 total_items += 1
             else: # we didn't take this item so look one up
-                i -= 1
-                current_item = memory[i][cap]
+                n -= 1
+                current_item = memory[n][C]
 
         print(total_items)
         print(*indices)
