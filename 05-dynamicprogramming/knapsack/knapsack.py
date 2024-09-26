@@ -1,4 +1,5 @@
 import sys
+#import time
 
 def solve():
     # --- kattis
@@ -36,6 +37,7 @@ def solve():
                 
                 # we don't have space for this item, so we continue increasing the capacity
                 if capacity < cur_weight:
+                    memory[item][capacity] = memory[item-1][capacity]
                     continue
 
                 # we have room - time for checking
@@ -77,9 +79,9 @@ def solve():
                 current_item = memory[i][cap]
 
         print(total_items)
-        indices.reverse()
         print(*indices)
         # startover
         line = sys.stdin.readline()
-    
+#start_time = time.time()
 solve()
+#print("--- %s seconds ---" % (time.time() - start_time))
