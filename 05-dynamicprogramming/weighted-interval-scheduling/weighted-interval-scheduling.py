@@ -1,43 +1,58 @@
 from sys import stdin
 
 
-def opt(j):
-    if j == 0:
-        return 0
-    
-    if M[j] != -1:
-        return M[j]
-    else:
-        M[j] = max((lst[j][2] + opt(p(j)), opt(j - 1)))
-        return M[j]
+def solve():
+    # kattis - read input
+    n = int(stdin.readline())
+    intervals = []
+
+    for _ in range(n):
+        start, end, weight = map(int, stdin.readline().split())
+        intervals.append((start, end, weight))
+
+    # sort intervals by finish time
+    intervals.sort(key=lambda x: x[1])
+
+    # instantiate memoization table
+    M = [0 for i in range(n)]
+
+    # set the first interval
+    M[0] = intervals[0][2]
+
+    # solve the maximum value from 1 to n 
+    # and fill in the memoization table
+    for i in range(1, n):
+        val = intervals[i][2]
+        p = compute_p(intervals, i)
+
+        if p != -1:
+            val += M[p]
+
+        M[i] = max(val, M[i-1])
 
 
-def p(n):
-    cur = lst[n]
-    
-    match = False
-    for j in range(n-1, 0, -1):
-        prev = lst[j]
-        # if the previous start time is before the previous end time it's not a match
-        if cur[0] < prev[1]:
-            continue
+    # print the result
+    print(M[n-1])
+
+
+# compute p[n] using binary search
+def compute_p(intervals, start):
+    low = 0
+    high = start - 1
+
+    # perform binary search to compute p[n]
+    while low <= high:
+        mid = (low + high) // 2
+        if intervals[mid][1] <= intervals[start][0]:
+            if intervals[mid + 1][1] <= intervals[start][0]:
+                low = mid + 1
+            else:
+                return mid
         else:
-            match = True
-            return j
-    if not match:
-        return 0
+            high = mid - 1
+    
+    # if no job before index conflicts, returns -1
+    return -1
 
 
-n = int(stdin.readline())
-lst = [(0, 0, 0)]
-
-for _ in range(n):
-    start, end, weight = map(int, stdin.readline().split())
-    lst.append((start, end, weight))
-
-# sort lst by finish-time
-lst.sort(key=lambda x: x[1])
-
-M = [-1 for i in range(n+1)]
-
-print(opt(n))
+solve()

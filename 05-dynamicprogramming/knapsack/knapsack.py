@@ -17,7 +17,6 @@ def solve():
         values = [0]
         weights = [0]
         
-
         # the memory table, 2 x 2 array 
         memory = [[0 for i in range(C+1)] for j in range(n+1)]
 
@@ -27,6 +26,7 @@ def solve():
             weights.append(int(weight))
 
         # fill in the memory table
+        # jeg kører til n + 1
         for item in range(1, n+1):
 
             # take the value and weight of the item that we want to place in this row
@@ -46,6 +46,7 @@ def solve():
                 else:
                     memory[item][capacity] = max(cur_value + memory[item-1][capacity - cur_weight], val_item_above)
                 
+        
         # now we want to backtrack our memory table and find the number of items taken and their indices
         indices = []
         current_item = memory[n][C]
