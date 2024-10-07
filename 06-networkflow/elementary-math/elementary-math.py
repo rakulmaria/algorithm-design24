@@ -76,14 +76,14 @@ class Graph():
 
     def connectNodesToSink(self, nodes):
         for node in nodes:
-            if self.getNode(node) == None:
+            if self.getEdge((self.sink.id, node.id)) == None:
                 e = Edge(node, graph.getNode(sinkNode), "")
                 graph.addEdges([e])
             
     def addEdges(self, edges):
         for edge in edges:
 
-            self.mapOfEdges[edge] = edge
+            self.mapOfEdges[(edge._from.id, edge._to.id)] = edge
             # add the node from this edge and to this edge to its adjacentlist
             edge._from.addEdge(edge)
             edge._to.addEdge(edge)
@@ -101,15 +101,7 @@ class Graph():
         
         print(f"\nEdges: {len(self.mapOfEdges)}\n")
         for key, value in self.mapOfEdges.items():
-            if key._from == None:
-                f = "None"
-            else:
-                f = key._from.id
-            if key._to == None:
-                t = "None"
-            else:
-                t = key._to.id
-            print(f"{f} -> {t}   type: {value._type}")
+            print(f"{key[0]} -> {key[1]}   type: {value._type}")
 
     def getGraphSize(self):
         return len(self.mapOfNodes)
