@@ -1,9 +1,6 @@
 from sys import stdin
-
-
-
 from queue import Queue
-from sys import stdin
+
 
 class Node():
     def __init__(self, id, source=False, sink=False):
@@ -17,12 +14,14 @@ class Node():
             self.adjacentEdges[edge] = edge 
 
 class Edge():
-    def __init__(self, _from, _to, _type, _capacity=1):
+    def __init__(self, _from, _to):
         self._from = _from
         self._to = _to
-        self._type = _type
-        self._capacity = _capacity
+        self._capacity = 1
         self._flow = 0
+
+    def increaseCapacity(self):
+        self._capacity += 1
         
     def residualCapacityTo(self, node):
         if node.id is self._to.id:
@@ -72,16 +71,18 @@ class Graph():
         return self.mapOfNodes.get(node.id)
 
     def getEdge(self, edge):
-        return self.mapOfEdges.get(edge)
-
+        return self.mapOfEdges.get((edge._from.id, edge._to.id))
     def connectNodesToSink(self, nodes):
         for node in nodes:
-            if self.getEdge((self.sink.id, node.id)) == None:
-                e = Edge(node, graph.getNode(sinkNode), "")
-                graph.addEdges([e])
+            if self.getEdge((node.id, self.sink.id)) == None:
+                e = Edge(node, graph.getNode(sinkNode))
+                self.addEdges([e])
             
     def addEdges(self, edges):
         for edge in edges:
+            if self.getEdge(edge) != None:
+                print("!!!")
+                return
 
             self.mapOfEdges[(edge._from.id, edge._to.id)] = edge
             # add the node from this edge and to this edge to its adjacentlist
@@ -101,7 +102,7 @@ class Graph():
         
         print(f"\nEdges: {len(self.mapOfEdges)}\n")
         for key, value in self.mapOfEdges.items():
-            print(f"{key[0]} -> {key[1]}   type: {value._type}")
+            print(f"{key[0]} -> {key[1]}   C: {value._capacity}, F: {value._flow}")
 
     def getGraphSize(self):
         return len(self.mapOfNodes)
@@ -154,8 +155,26 @@ class Graph():
         
         return maxFlow
 
-            
-    
+    def result(self):
+        filtered_edges = {e: self.getEdge(e) for e in self.mapOfEdges if self.getEdge(e)._flow > 0 and self.getEdge(e)._from.id != 'source' and self.getEdge(e)._to.id != 'sink'}
+        result = []
+        for _, edge in filtered_edges.items():
+            result.append(self.getBinaryOperator(edge._from, edge._to))
+
+        if len(result) == 0:
+            print("impossible")
+        else:
+            for ele in result:
+                print(ele)
+
+    def getBinaryOperator(self, n1, n2):
+        if n1.id[0] - n1.id[1] == n2:
+            return str(f"{n1.id[0]} - {n1.id[1]} = {n2.id}")
+        elif n1.id[0] - n1.id[1] == n2:
+            return str(f"{n1.id[0]} + {n1.id[1]} = {n2.id}")
+        else:
+            return str(f"{n1.id[0]} * {n1.id[1]} = {n2.id}")
+
 path = {}
 
 N = int(stdin.readline())
@@ -166,8 +185,6 @@ sinkNode = Node("sink", sink=True)
 
 graph.addNodes([sourceNode, sinkNode])
 
-graph.printGraph()
-
 for _ in range(N):
     a, b = map(int, stdin.readline().split())
 
@@ -177,17 +194,22 @@ for _ in range(N):
     m = Node(a - b)
     t = Node(a * b)
 
-    graph.addNodes([n1, p, m, t])
-    e0 = Edge(graph.getNode(sourceNode), graph.getNode(n1), "")
+    # if n1 already exists, increase the edges capacity
+    #initialEdge = graph.getEdge((sourceNode.id, n1.id))
+    # if initialEdge != None:
+    #     initialEdge.increaseCapacity()
 
-    e1 = Edge(n1, p, "+")
-    e2 = Edge(n1, m, "-")
-    e3 = Edge(n1, t, "*")
+    graph.addNodes([n1, p, m, t])
+    e0 = Edge(graph.getNode(sourceNode), graph.getNode(n1))
+
+    e1 = Edge(n1, p)
+    e2 = Edge(n1, m)
+    e3 = Edge(n1, t)
 
     graph.connectNodesToSink([p, m, t])
 
     graph.addEdges([e0, e1, e2, e3])
 
-
+graph.findMaxFlow()
 graph.printGraph()
-
+graph.result()
