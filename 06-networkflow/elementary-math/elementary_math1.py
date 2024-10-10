@@ -2,17 +2,18 @@
 # Using DFS
 
 from sys import stdin
+from queue import Queue
 
 class Node():
     def __init__(self, id, source=False, sink=False):
         self.id = id
-        self.adjacentEdges = {}
+        self.adjacentEdges = set()
         self.isSource = source
         self.isSink = sink
 
     def addEdge(self, edge):
-       if edge not in self.adjacentEdges.values():
-            self.adjacentEdges[edge] = edge 
+        self.adjacentEdges.add(edge)
+        print(f"NODE {self.id}: added {edge._from.id} -> {edge._to.id} to adjacent dict")
 
 class Edge():
     def __init__(self, _from, _to):
@@ -62,12 +63,15 @@ class Graph():
         self.maxFlow = 0
 
     def addNode(self, node):
+        thisNode = self.getNode(node)
+
         if node.isSource:
             self.source = node
         if node.isSink:
             self.sink = node
 
-        self.mapOfNodes[node.id] = node
+        if thisNode == None:
+            self.mapOfNodes[node.id] = node
 
     def getNode(self, node):
         return self.mapOfNodes.get(node.id)
@@ -76,12 +80,14 @@ class Graph():
         thisEdge = self.getEdge(edge)
 
         if thisEdge is None:
-            self.mapOfEdges.update({(edge._from.id, edge._to.id): edge})
+            print(f"{edge._from.id} -> {edge._to.id} doesn't exist - adding it")
+            self.mapOfEdges[(edge._from.id, edge._to.id)] = edge
             # and add the edge to the adjacency list
-            edge._from.addEdge(edge)
-            edge._to.addEdge(edge)
+
+            self.getNode(edge._from).addEdge(self.getEdge(edge))
+            self.getNode(edge._to).addEdge(self.getEdge(edge))
         else:
-            thisEdge._capacity += edge._capacity
+            thisEdge.increaseCapacity()
 
     def getEdge(self, edge):
         return self.mapOfEdges.get((edge._from.id, edge._to.id))
@@ -109,68 +115,52 @@ class Graph():
     def getGraphSize(self):
         return len(self.mapOfNodes)
     
-    def findPath(self, _from: Node, _to: Node, nodes, path=None, markedNodes=None):
-        if path is None:
-            path = {}
-        if markedNodes is None:
-            markedNodes = {}
+    def findPath(self, _from: Node, _to: Node):
+        markedNodes = {}
+        queue = Queue(maxsize=graph.getGraphSize())
+        
+        markedNodes[_from.id] = True 
 
-        markedNodes[_from.id] = True
+        queue.put(item=_from)             # and put it on the queue
 
-        for edge in _from.adjacentEdges:
-            otherNode = edge.getOther(_from)
-            print(f"{_from.id} -> {otherNode.id}")
-            print(f"rest capacity: {edge.residualCapacityTo(otherNode)}")
+        while not queue.empty():
+            currentNode = queue.get()
             
+            for edge in currentNode.adjacentEdges:
+                otherNode = edge.getOther(currentNode)
 
-            if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(
-                otherNode.id
-            ):
-                path[otherNode.id] = edge
-                markedNodes[otherNode.id] = True
+                if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(otherNode.id):
+                    path[otherNode.id] = edge
+                    markedNodes[otherNode.id] = True 
+                    queue.put(otherNode)
+            
+        
+        return markedNodes.get(_to.id)
 
-                if otherNode.id == _to.id:
-                    return path, True, markedNodes
 
-                path, last_marked, markedNodes = self.findPath(
-                    otherNode, _to, nodes, path, markedNodes
-                )
-
-                if last_marked:
-                    return path, True, markedNodes
-
-        return path, False, markedNodes
-
-    def findMaxFlow(self, nodes):
+    def findMaxFlow(self):
         maxFlow = 0
+        global path
 
-        path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
-        while isPath:
-            print("--- looking for new path ---")
-            for edge in path.keys():
-                print(f"key: {edge}")
-                path[edge].printEdge()
-
-
+        while(self.findPath(self.source, self.sink)):
+            print("--- looking for a new path ---")
             bottle = 9223372036854775807
             v = self.sink
 
             while v.id is not self.source.id:
-                v_edge = path.get(v.id)
-                bottle = min(bottle, v_edge.residualCapacityTo(v))
-                v = v_edge.getOther(v)
+                bottle = min(bottle, path.get(v.id).residualCapacityTo(v))
+                v = path.get(v.id).getOther(v)
 
             v = self.sink
             while v.id is not self.source.id:
-                v_edge = path.get(v.id)
-                v_edge.addResidualFlowTo(bottle, v)
-                v = v_edge.getOther(v)
+                path.get(v.id).addResidualFlowTo(bottle, v)
+                v = path.get(v.id).getOther(v)
 
-            print(f"bottle: {bottle}")
-
+            print(f"bottleneck found and increasing maxflow by {bottle}")
             maxFlow += bottle
 
-            path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
+            path = {}
+        
         return maxFlow
 
     def result(self):
@@ -238,8 +228,8 @@ for _ in range(N):
     graph.addEdge(e2)
     graph.addEdge(e3)
 
-
-
-print(graph.findMaxFlow(len(graph.mapOfNodes)))
 graph.printGraph()
+
+print(f"maxflow is: {graph.findMaxFlow()}")
+
 graph.result()
