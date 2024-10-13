@@ -1,37 +1,28 @@
+
+from queue import Queue
 from sys import stdin
-import sys
 
-sys.setrecursionlimit(10000)
-
-
-class Node:
-    def __init__(self, id, source=False, sink=False, a=None, b=None, res=None):
+class Node():
+    def __init__(self, id, source=False, sink=False):
         self.id = id
-        self.adjacentEdges = set()
+        self.adjacentEdges = {}
         self.isSource = source
         self.isSink = sink
-        self.a = a
-        self.b = b
-        self.res = res
 
     def addEdge(self, edge):
-        self.adjacentEdges.add(edge)
+        self.adjacentEdges.update({edge: edge})
+        
 
-    def printNode(self):
-        print("----NODE----")
-        print(f"node id: {self.id}")
-        print(f"a: {self.a}, b: {self.b}, res: {self.res}")
-        print(f"is source: {self.isSource}")
-        print(f"is sink: {self.isSink}")
-
-
-class Edge:
-    def __init__(self, _from, _to, _capacity):
+class Edge():
+    def __init__(self, _from, _to):
         self._from = _from
         self._to = _to
-        self._capacity = _capacity
+        self._capacity = 1
         self._flow = 0
 
+    def updateCapacity(self):
+        self._capacity += 1
+        
     def residualCapacityTo(self, node):
         if node.id is self._to.id:
             value = self._capacity - self._flow
@@ -44,219 +35,197 @@ class Edge:
             self._flow += flowValue
         else:
             self._flow -= flowValue
-
+    
     def getOther(self, node: Node):
         if node.id is self._from.id:
             return self._to
         else:
             return self._from
-
+    
     def compareEdge(self, edge):
-        if (
-            self._from is edge._from
-            and self._to is edge._to
-            and self._capacity is edge._capacity
-        ):
+        if self._from is edge._from and self._to is edge._to and self._capacity is edge._capacity:
             return True
         else:
             return False
-
+        
     def printEdge(self):
-        return self._from.id, "->", self._to.id, "FLOW:", self._flow, "CAPACITY:", self._capacity
+        print(self._from.id, "->", self._to.id, "FLOW:", self._flow, "CAPACITY:", self._capacity)
 
-
-class Graph:
+class Graph():
     def __init__(self):
-        self.dictOfNodes = {}
-        self.resToNodes = {}
-        self.dictOfEdges = {}
+        self.mapOfNodes = {}
+        self.mapOfEdges = {}
         self.source = None
         self.sink = None
-
-    def addNode(self, node: Node):
-        if node.isSink:
-            self.sink = node
+    
+    def addNode(self, node):
         if node.isSource:
             self.source = node
+        if node.isSink:
+            self.sink = node
+            
+        if self.getNode(node) == None:
+            self.mapOfNodes.update({node.id: node})
 
-        if node.isSink and node.isSource:
-            return "Same node can't be sink and source"
+    def getNode(self, node):
+        return self.mapOfNodes.get(node.id)
 
-        self.dictOfNodes.update({node.id: node})
+    def getEdge(self, edge):
+        return self.mapOfEdges.get((edge._from.id, edge._to.id))
 
-        if node.res is not None:
-            self.resToNodes.update({node.res: node})
-
-    def getEdge(self, edge: Edge):
-        return self.dictOfEdges.get((edge._from.id, edge._to.id))
-
-    def addEdge(self, edge: Edge):
+    def addEdge(self, edge):
         thisEdge = self.getEdge(edge)
 
         if thisEdge is None:
-            self.dictOfEdges.update({(edge._from.id, edge._to.id): edge})
-            return edge
+            self.mapOfEdges.update({(edge._from.id, edge._to.id): edge})
+            # update the from and to nodes
+            self.getNode(edge._from).addEdge(edge)
+            self.getNode(edge._to).addEdge(edge)
         else:
-            thisEdge._capacity += edge._capacity
-            return thisEdge
+            thisEdge.updateCapacity()
+            self.getNode(edge._from).addEdge(self.getEdge(thisEdge))
+            self.getNode(edge._to).addEdge(self.getEdge(thisEdge))
+        
+    def connectNodesToSink(self, nodes):
+        for node in nodes:
+            if self.mapOfEdges.get((node.id, self.sink.id)) == None:
+                e = Edge(node, graph.getNode(self.sink))
+                self.addEdge(e)
+    
+    def printGraph(self):
 
-    def getNode(self, id, res=False):
-        if res:
-            return self.resToNodes.get(id)
-        return self.dictOfNodes.get(id)
+        print(f"NODES: {len(self.mapOfNodes)}")
+        print()
+        for node in self.mapOfNodes.values():
+            print(f"{node.id}")
+            for e in node.adjacentEdges.values():
+                print("  ", end="")
+                e.printEdge()
 
-    def findPath(self, _from: Node, _to: Node, nodes, path=None, markedNodes=None):
-        print(f"nodes: {nodes}")
-        if path is None:
-            path = {}
-        if markedNodes is None:
-            markedNodes = {}
+        print()
+        print(f"EDGES: {len(self.mapOfEdges)}")
+        print()
+        for edge in self.mapOfEdges.values():
+            edge.printEdge()
 
-        markedNodes[_from.id] = True
+    def getGraphSize(self):
+        return len(self.mapOfNodes)
+            
 
-        for edge in _from.adjacentEdges:
-            otherNode = edge.getOther(_from)
+    def findPath(self, _from: Node, _to: Node):
+        markedNodes = {}
+        queue = Queue(maxsize=graph.getGraphSize())
+        
+        markedNodes[_from.id] = True 
 
-            if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(
-                otherNode.id
-            ):
-                path[otherNode.id] = edge
-                markedNodes[otherNode.id] = True
+        queue.put(item=_from)             # and put it on the queue
 
-                if otherNode.id == _to.id:
-                    return path, True, markedNodes
-                print(f"nodes: {nodes}")
-                path, last_marked, markedNodes = self.findPath(
-                    otherNode, _to, nodes, path, markedNodes
-                )
+        while not queue.empty():
+            currentNode = queue.get()
+            
+            for edge in currentNode.adjacentEdges:
+                otherNode = edge.getOther(currentNode)
 
-                if last_marked:
-                    return path, True, markedNodes
+                if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(otherNode.id):
+                    path[otherNode.id] = edge
+                    markedNodes[otherNode.id] = True 
+                    queue.put(otherNode)
+            
+        
+        return markedNodes.get(_to.id)
 
-        return path, False, markedNodes
 
-    def findMaxFlow(self, nodes):
-        print(f"nodes: {nodes}")
+    def findMaxFlow(self):
         maxFlow = 0
+        global path
 
-        path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
-        while isPath:
+        while(self.findPath(self.source, self.sink)):
             bottle = 9223372036854775807
             v = self.sink
 
             while v.id is not self.source.id:
-                v_edge = path.get(v.id)
-                bottle = min(bottle, v_edge.residualCapacityTo(v))
-                v = v_edge.getOther(v)
+                bottle = min(bottle, path.get(v.id).residualCapacityTo(v))
+                v = path.get(v.id).getOther(v)
 
             v = self.sink
             while v.id is not self.source.id:
-                v_edge = path.get(v.id)
-                v_edge.addResidualFlowTo(bottle, v)
-                v = v_edge.getOther(v)
+                path.get(v.id).addResidualFlowTo(bottle, v)
+                v = path.get(v.id).getOther(v)
 
+            
             maxFlow += bottle
-            print(f"nodes: {nodes}")
-            path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
-        return maxFlow
 
-    def printGraph(self):
-
-        print(f"Nodes: {len(self.dictOfNodes)}\n")
-        for key, value in self.dictOfNodes.items():
-            print(f"Node ID: {key}")
-            for edge in value.adjacentEdges:
-                print(" - ", end="")
-                edge.printEdge()
-
+            path = {}
         
-        print(f"\nEdges: {len(self.dictOfEdges)}\n")
-        for key, value in self.dictOfEdges.items():
-            print(f"{key[0]} -> {key[1]}   C: {value._capacity}, F: {value._flow}")
-
-def create_graph():
-    n = int(stdin.readline())
-    nodes = 2
-    graph = Graph()
-
-    graph.addNode(Node(-2, source=True))
-    graph.addNode(Node(-1, sink=True))
-
-    j = 0
-
-    for i in range(n):
-        a, b = stdin.readline().split()
-        a = int(a)
-        b = int(b)
-        graph.addNode(Node(j, a=a, b=b))
-        ab_node_id = j
-        nodes += 1
-
-        newEdge = Edge(graph.getNode(-2), graph.getNode(j), 1)
-        updatedEdge = graph.addEdge(newEdge)
-        graph.getNode(-2).addEdge(updatedEdge)
-        graph.getNode(j).addEdge(updatedEdge)
-        j += 1
-
-        # plus
-        j, nodes = add_node_and_edge(a + b, graph, j, ab_node_id, nodes)
-
-        # minus
-        j, nodes = add_node_and_edge(a - b, graph, j, ab_node_id, nodes)
-
-        # mul
-        j, nodes = add_node_and_edge(a * b, graph, j, ab_node_id, nodes)
-
-    return nodes, graph, n
-
-
-def add_node_and_edge(res, graph, j, ab_node_id, nodes):
-    res_node = graph.getNode(res, True)
-    res_node_id = -2222
-
-    if res_node is None:
-        graph.addNode(Node(j, res=res))
-        res_node_id = j
-        j += 1
-        nodes += 1
-        newEdge = Edge(graph.getNode(res_node_id), graph.getNode(-1), 1)
-        updatedEdge = graph.addEdge(newEdge)
-        graph.getNode(-1).addEdge(updatedEdge)
-        graph.getNode(res_node_id).addEdge(updatedEdge)
-    else:
-        res_node_id = res_node.id
-    if graph.dictOfEdges.get((ab_node_id, res_node_id)) is None:
-        newEdge = Edge(graph.getNode(ab_node_id), graph.getNode(res_node_id), 1)
-        updatedEdge = graph.addEdge(newEdge)
-        graph.getNode(ab_node_id).addEdge(updatedEdge)
-        graph.getNode(res_node_id).addEdge(updatedEdge)
-
-    return j, nodes
-
-
-def solve():
-    nodes, graph, equations = create_graph()
-
-    graph.printGraph()
+        return maxFlow
     
+    def result(self):
+        filteredEdges = []
+        result = []
+        for edge in self.mapOfEdges.values():
+            if edge._from.id != "source" and edge._flow > 0 and edge._to.id != "sink":
+                filteredEdges.append(edge)
 
-    # maxFlow = graph.findMaxFlow(nodes)
+        for edge in filteredEdges:
+            res = edge._to.id
+            a = edge._from.id[0]
+            b = edge._from.id[1]
 
-    # if maxFlow < equations:
-    #     print("impossible")
-    # else:
-    #     for edge in graph.dictOfEdges.values():
-    #         if edge._flow > 0 and edge._from.id >= 0 and edge._to.id >= 0:
-    #             a = edge._from.a
-    #             b = edge._from.b
-    #             res = edge._to.res
+            if a + b == res:
+                res = f"{a} + {b} = {res}"
+            elif a - b == res:
+                res = f"{a} - {b} = {res}"
+            elif a * b == res:
+                res = f"{a} * {b} = {res}"
+            result.append(res)
 
-    #             if a + b == res:
-    #                 print(f"{edge._from.a} + {edge._from.b} = {edge._to.res}")
-    #             elif a - b == res:
-    #                 print(f"{edge._from.a} - {edge._from.b} = {edge._to.res}")
-    #             elif a * b == res:
-    #                 print(f"{edge._from.a} * {edge._from.b} = {edge._to.res}")
+        for r in result:
+            print(r)
 
 
-solve()
+path = {}
+
+N = int(stdin.readline())
+
+graph = Graph()
+sourceNode = Node("source", True)
+sinkNode = Node("sink", sink=True)
+
+graph.addNode(sourceNode)
+graph.addNode(sinkNode)
+
+for _ in range(N):
+    a, b = map(int, stdin.readline().split())
+
+    n1 = Node((a, b))
+
+    p = Node(a + b)
+    m = Node(a - b)
+    t = Node(a * b)
+    # why does node 1 not have adjacent edges, how do I create them
+
+    graph.addNode(n1)
+    graph.addNode(p)
+    graph.addNode(m)
+    graph.addNode(t)
+    e0 = Edge(graph.getNode(sourceNode), graph.getNode(n1))
+
+    e1 = Edge(n1, p)
+    e2 = Edge(n1, m)
+    e3 = Edge(n1, t)
+
+
+    graph.addEdge(e0)
+    graph.addEdge(e1)
+    graph.addEdge(e2)
+    graph.addEdge(e3)
+    graph.connectNodesToSink([p, m, t])
+
+
+graph.printGraph()
+
+print(f"maxflow is: {graph.findMaxFlow()}")
+
+graph.printGraph()
+
+#graph.result()
