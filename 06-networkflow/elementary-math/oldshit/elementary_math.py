@@ -61,9 +61,6 @@ class Edge:
         else:
             return False
 
-    def printEdge(self):
-        return self._from.id, "->", self._to.id, "FLOW:", self._flow, "CAPACITY:", self._capacity
-
 
 class Graph:
     def __init__(self):
@@ -106,7 +103,6 @@ class Graph:
         return self.dictOfNodes.get(id)
 
     def findPath(self, _from: Node, _to: Node, nodes, path=None, markedNodes=None):
-        print(f"nodes: {nodes}")
         if path is None:
             path = {}
         if markedNodes is None:
@@ -125,7 +121,7 @@ class Graph:
 
                 if otherNode.id == _to.id:
                     return path, True, markedNodes
-                print(f"nodes: {nodes}")
+
                 path, last_marked, markedNodes = self.findPath(
                     otherNode, _to, nodes, path, markedNodes
                 )
@@ -136,7 +132,6 @@ class Graph:
         return path, False, markedNodes
 
     def findMaxFlow(self, nodes):
-        print(f"nodes: {nodes}")
         maxFlow = 0
 
         path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
@@ -156,23 +151,23 @@ class Graph:
                 v = v_edge.getOther(v)
 
             maxFlow += bottle
-            print(f"nodes: {nodes}")
+
             path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
         return maxFlow
 
     def printGraph(self):
+        for node in self.dictOfNodes.values():
+            node.printNode()
 
-        print(f"Nodes: {len(self.dictOfNodes)}\n")
-        for key, value in self.dictOfNodes.items():
-            print(f"Node ID: {key}")
-            for edge in value.adjacentEdges:
-                print(" - ", end="")
-                edge.printEdge()
+        for edge in self.dictOfEdges.values():
+            print("----EDGE----")
+            print("From:")
+            edge._from.printNode()
+            print("To:")
+            edge._to.printNode()
+            print("Capacity:", edge._capacity)
+            print("Flow:", edge._flow)
 
-        
-        print(f"\nEdges: {len(self.dictOfEdges)}\n")
-        for key, value in self.dictOfEdges.items():
-            print(f"{key[0]} -> {key[1]}   C: {value._capacity}, F: {value._flow}")
 
 def create_graph():
     n = int(stdin.readline())
@@ -237,26 +232,23 @@ def add_node_and_edge(res, graph, j, ab_node_id, nodes):
 def solve():
     nodes, graph, equations = create_graph()
 
-    graph.printGraph()
-    
+    maxFlow = graph.findMaxFlow(nodes)
 
-    # maxFlow = graph.findMaxFlow(nodes)
+    if maxFlow < equations:
+        print("impossible")
+    else:
+        for edge in graph.dictOfEdges.values():
+            if edge._flow > 0 and edge._from.id >= 0 and edge._to.id >= 0:
+                a = edge._from.a
+                b = edge._from.b
+                res = edge._to.res
 
-    # if maxFlow < equations:
-    #     print("impossible")
-    # else:
-    #     for edge in graph.dictOfEdges.values():
-    #         if edge._flow > 0 and edge._from.id >= 0 and edge._to.id >= 0:
-    #             a = edge._from.a
-    #             b = edge._from.b
-    #             res = edge._to.res
-
-    #             if a + b == res:
-    #                 print(f"{edge._from.a} + {edge._from.b} = {edge._to.res}")
-    #             elif a - b == res:
-    #                 print(f"{edge._from.a} - {edge._from.b} = {edge._to.res}")
-    #             elif a * b == res:
-    #                 print(f"{edge._from.a} * {edge._from.b} = {edge._to.res}")
+                if a + b == res:
+                    print(f"{edge._from.a} + {edge._from.b} = {edge._to.res}")
+                elif a - b == res:
+                    print(f"{edge._from.a} - {edge._from.b} = {edge._to.res}")
+                elif a * b == res:
+                    print(f"{edge._from.a} * {edge._from.b} = {edge._to.res}")
 
 
 solve()

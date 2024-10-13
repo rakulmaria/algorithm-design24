@@ -2,18 +2,18 @@
 # Using DFS
 
 from sys import stdin
-from queue import Queue
 
 class Node():
     def __init__(self, id, source=False, sink=False):
         self.id = id
-        self.adjacentEdges = set()
+        self.adjacentEdges = {}
         self.isSource = source
         self.isSink = sink
 
     def addEdge(self, edge):
-        self.adjacentEdges.add(edge)
-        print(f"NODE {self.id}: added {edge._from.id} -> {edge._to.id} to adjacent dict")
+        print(f"adding edge {edge.printEdge()} to N: {self.id}")
+        if edge not in self.adjacentEdges.values():
+            self.adjacentEdges[edge] = edge 
 
 class Edge():
     def __init__(self, _from, _to):
@@ -45,18 +45,13 @@ class Edge():
             return self._from
     
     def compareEdge(self, edge):
-        if (
-            self._from is edge._from
-            and self._to is edge._to
-            and self._capacity is edge._capacity
-        ):
+        if self._from is edge._from and self._to is edge._to and self._capacity is edge._capacity:
             return True
         else:
             return False
         
-        
     def printEdge(self):
-        return self._from.id, "->", self._to.id, "FLOW:", self._flow, "CAPACITY:", self._capacity
+        return str(self._from.id) + " -> " + str(self._to.id) + " FLOW: " + str(self._flow) + " CAPACITY: " + str(self._capacity)
 
 
 class Graph():
@@ -68,15 +63,12 @@ class Graph():
         self.maxFlow = 0
 
     def addNode(self, node):
-        thisNode = self.getNode(node)
-
         if node.isSource:
             self.source = node
         if node.isSink:
             self.sink = node
 
-        if thisNode == None:
-            self.mapOfNodes[node.id] = node
+        self.mapOfNodes[node.id] = node
 
     def getNode(self, node):
         return self.mapOfNodes.get(node.id)
@@ -85,14 +77,20 @@ class Graph():
         thisEdge = self.getEdge(edge)
 
         if thisEdge is None:
-            print(f"{edge._from.id} -> {edge._to.id} doesn't exist - adding it")
-            self.mapOfEdges[(edge._from.id, edge._to.id)] = edge
-            # and add the edge to the adjacency list
+            print(f"edge {edge.printEdge()} doesn't exist - adding it")
+            a = self.getNode(edge._from) 
+            b = self.getNode(edge._to)
+            
+            if a != None and b != None:
+                self.mapOfEdges.update({(a, b): edge})
 
-            self.getNode(edge._from).addEdge(self.getEdge(edge))
-            self.getNode(edge._to).addEdge(self.getEdge(edge))
+            self.mapOfEdges.update({(edge._from.id, edge._to.id): edge})
+            # and add the edge to the adjacency list
+            edge._from.addEdge(self.getEdge(edge))
+            edge._to.addEdge(self.getEdge(edge))
         else:
-            thisEdge.increaseCapacity()
+            print(f"edge already exists - increasing the capacity")
+            thisEdge._capacity += edge._capacity
 
     def getEdge(self, edge):
         return self.mapOfEdges.get((edge._from.id, edge._to.id))
@@ -108,9 +106,10 @@ class Graph():
         print(f"Nodes: {len(self.mapOfNodes)}\n")
         for key, value in self.mapOfNodes.items():
             print(f"Node ID: {key}")
+
             for edge in value.adjacentEdges:
                 print(" - ", end="")
-                edge.printEdge()
+                print(edge.printEdge())
 
         
         print(f"\nEdges: {len(self.mapOfEdges)}\n")
@@ -121,7 +120,6 @@ class Graph():
         return len(self.mapOfNodes)
     
     def findPath(self, _from: Node, _to: Node, nodes, path=None, markedNodes=None):
-        print(f"nodes: {nodes}")
         if path is None:
             path = {}
         if markedNodes is None:
@@ -131,6 +129,9 @@ class Graph():
 
         for edge in _from.adjacentEdges:
             otherNode = edge.getOther(_from)
+            print(f"{_from.id} -> {otherNode.id}")
+            print(f"rest capacity: {edge.residualCapacityTo(otherNode)}")
+            
 
             if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(
                 otherNode.id
@@ -140,7 +141,7 @@ class Graph():
 
                 if otherNode.id == _to.id:
                     return path, True, markedNodes
-                print(f"nodes: {nodes}")
+
                 path, last_marked, markedNodes = self.findPath(
                     otherNode, _to, nodes, path, markedNodes
                 )
@@ -151,11 +152,16 @@ class Graph():
         return path, False, markedNodes
 
     def findMaxFlow(self, nodes):
-        print(f"nodes: {nodes}")
         maxFlow = 0
 
         path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
         while isPath:
+            print("--- looking for new path ---")
+            for edge in path.keys():
+                print(f"key: {edge}")
+                path[edge].printEdge()
+
+
             bottle = 9223372036854775807
             v = self.sink
 
@@ -170,8 +176,10 @@ class Graph():
                 v_edge.addResidualFlowTo(bottle, v)
                 v = v_edge.getOther(v)
 
+            print(f"bottle: {bottle}")
+
             maxFlow += bottle
-            print(f"nodes: {nodes}")
+
             path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
         return maxFlow
 
@@ -218,9 +226,14 @@ for _ in range(N):
 
     n1 = Node((a, b))
 
+    print(f"n1: {n1.id}")
+
     p = Node(a + b)
     m = Node(a - b)
     t = Node(a * b)
+    print(f"plus: {p.id}")
+    print(f"minus: {m.id}")
+    print(f"times: {t.id}")
     # why does node 1 not have adjacent edges, how do I create them
 
     graph.addNode(n1)
@@ -240,8 +253,10 @@ for _ in range(N):
     graph.addEdge(e2)
     graph.addEdge(e3)
 
+
+
+print(graph.findMaxFlow(len(graph.mapOfNodes)))
+print("---")
 graph.printGraph()
-
-#print(f"maxflow is: {graph.findMaxFlow(graph.getGraphSize())}")
-
+print("---")
 graph.result()
