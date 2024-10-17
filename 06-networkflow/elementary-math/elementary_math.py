@@ -37,7 +37,7 @@ class Edge():
         if node.id is self.to.id:
             self.flow += value
         else:
-            self.flow - value
+            self.flow -= value
 
     def getOther(self, node):
         if node.id is self._from.id:
@@ -77,10 +77,8 @@ class Graph():
         thisEdge = self.getEdge(edge)
 
         if thisEdge is None:
-            print(f"is None - adding {edge.printEdge()}")
             self.mapOfEdges.update({(edge._from.id, edge.to.id): edge})
         else:
-            print(f"NOT None - increasing capacity {thisEdge.printEdge()}")
             thisEdge.increaseCapacity()
 
         self.getNode(edge._from).addEdge(self.getEdge(edge))
@@ -98,10 +96,10 @@ class Graph():
         markedNodes[_from.id] = True
 
         for edge in _from.adjacentEdges:
-            print(f"in for loop")
+            # print(f"in for loop")
             otherNode = edge.getOther(_from)
 
-            print(f"otherNode: {otherNode.id}")
+            # print(f"otherNode: {otherNode.id}")
 
             if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(
                 otherNode.id
@@ -118,7 +116,7 @@ class Graph():
 
                 if last_marked:
                     return path, True, markedNodes
-            print(f"next iteration")
+            # print(f"next iteration")
 
         return path, False, markedNodes
 
@@ -126,7 +124,7 @@ class Graph():
         maxFlow = 0
 
         path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
-        print(f"ispath: {isPath}")
+        # print(f"ispath: {isPath}")
         while isPath:
             bottle = 9223372036854775807
             v = self.sink
@@ -142,9 +140,10 @@ class Graph():
                 v_edge.addResidualFlowTo(bottle, v)
                 v = v_edge.getOther(v)
 
-            print(f"bottle: {bottle}")
+            # print(f"bottle: {bottle}")
             maxFlow += bottle
             path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
+
         return maxFlow
 
     def createGraph(self):
@@ -190,25 +189,12 @@ class Graph():
             e = Edge(self.mapOfNodes.get(node), self.sink)
             self.addEdge(e)
 
-        # for node in self.mapOfNodes.values():
-        #     print(f"Node: {node.id}")
-        #     for edge in node.adjacentEdges.values():
-        #         print(f"{edge.printEdge()}")
-        #     print()
-
-        print(self.findMaxFlow(len(self.mapOfNodes)))
-
-        for node in self.mapOfNodes.values():
-            print(f"Node: {node.id}")
-            for edge in node.adjacentEdges.values():
-                print(f"{edge.printEdge()}")
-            print()
+        self.findMaxFlow(len(self.mapOfNodes))
 
         result = []
 
         for edge in self.mapOfEdges.values():
-            if edge._from.id is not "source" and edge.to.id is not "sink" and edge.flow > 0:
-                print(edge.printEdge())
+            if edge._from.id != "source" and edge.to.id != "sink" and edge.flow > 0:
                 a, b = edge._from.id
                 res = edge.to.id
 
@@ -219,8 +205,10 @@ class Graph():
                 elif a * b == res:
                     result.append(f"{a} * {b} = {res}")
 
-
-        print(*result, sep="\n")
+        if len(result) != N:
+            print("impossible")
+        else:
+            print(*result, sep="\n")
 
         
 
