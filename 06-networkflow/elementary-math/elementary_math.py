@@ -62,6 +62,7 @@ class Graph():
         self.mapOfEdges = {}
         self.source = None
         self.sink = None
+        self.maxFlow = 0
 
     def addNode(self, node):
         if node.source:
@@ -140,6 +141,7 @@ class Graph():
             maxFlow += bottle
             path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
 
+        self.maxFlow += maxFlow
         return maxFlow
 
     def createGraph(self):
@@ -201,19 +203,10 @@ class Graph():
                 elif a * b == res:
                     result.append(f"{a} * {b} = {res}")
 
-        if len(result) != N:
+        if self.maxFlow != N:
             print("impossible")
         else:
             print(*result, sep="\n")
 
-        
-
-
-            
-            
-            
-
 graph = Graph()
-
 graph.createGraph()
-
