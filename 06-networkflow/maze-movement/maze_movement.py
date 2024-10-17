@@ -5,27 +5,6 @@ import math
 from queue import Queue
 from sys import stdin
 
-def primeFactors(n):
-    i = 2
-    factors = set()
-    # Divide out all 2s first
-    while n % i == 0:
-        factors.add(i)
-        n //= i
-    
-    i = 3
-    # Now check odd numbers
-    while i * i <= n:
-        while n % i == 0:
-            factors.add(i)
-            n //= i
-        i += 2
-    # If n is a prime number larger than 2, add it to the factors
-    if n > 1:
-        factors.add(n)
-    return factors
-
-
 class Node():
     def __init__(self, id, source=False, sink=False):
         self.id = id
@@ -125,6 +104,7 @@ class Graph():
             currentNode = queue.get()
             
             for edge in currentNode.adjacentEdges:
+                print("---")
                 otherNode = edge.getOther(currentNode)
 
                 if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(otherNode.id):
@@ -164,7 +144,8 @@ class Graph():
         N = int(stdin.readline())
 
         nodes = []
-        curMin = 74852374924
+        dict = {}
+        curMin = 74852374924578
         curMax = 1
 
         for i in range(N):
@@ -174,45 +155,26 @@ class Graph():
             if n > curMax:
                 curMax = n
             nodes.append(n)
-
-        for id in nodes:
-            sink = False
-            source = False
-            if id == curMin:
-                source = True
-            if id == curMax:
-                sink = True
-
-            node = Node(id, source=source, sink=sink)
-            self.addNode(node)
-
-        primes = defaultdict(list)
-
-        for id in nodes:
-            prime_factors_set = primeFactors(id)
-            for p in prime_factors_set:
-                primes[p].append(id)
-
-
+            dict[n] = i
 
         # create the edges
-        for prime, group in primes.items():
-            for i in range(len(group)):
-                for j in range(i + 1, len(group)):
-                    n1 = self.getNode(group[i])
-                    n2 = self.getNode(group[j])
-                    #weight = math.gcd(n1.id, n2.id)
-                    #weight = math.gcd(n1.id, n2.id)  # This will be prime `p`, so no need to recalculate
-                    if prime > 1:
-                        edge1 = Edge(n1, n2, prime)
-                        edge2 = Edge(n2, n1, prime)
-                        self.addEdge(edge1)
-                        self.addEdge(edge2)
+        for i in range(len(nodes)):
+            n = nodes[i]
+            n1 = Node(n, source=n==curMin, sink=n==curMax)
+            self.addNode(n1)
+            for j in range(i+1, len(nodes)):
+                m = nodes[j]
+                n2 = Node(m, source=m==curMin, sink=m==curMax)
+                self.addNode(n2)
+                weight = math.gcd(n, m)
+                if weight > 1:
+                    edge1 = Edge(n1, n2, weight)
+                    edge2 = Edge(n2, n1, weight)
+                    self.addEdge(edge1)
+                    self.addEdge(edge2)
                         
-        #print(self.findMaxFlow())
-
-
-
+        print(self.findMaxFlow())
+        self.printGraph()
 
 start_time = time.time()     
 path = {}        
