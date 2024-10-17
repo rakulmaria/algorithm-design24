@@ -1,6 +1,7 @@
-from sys import stdin
-from typing import Counter
+# Ford-Fulkerson implementation made together with Silke Bonnen for bachelors project in spring 2024
+# Improvements added autumn 2024 by Silke Bonnen
 
+from sys import stdin
 
 class Node():
     def __init__(self, id, source=False, sink=False):
@@ -96,10 +97,7 @@ class Graph():
         markedNodes[_from.id] = True
 
         for edge in _from.adjacentEdges:
-            # print(f"in for loop")
             otherNode = edge.getOther(_from)
-
-            # print(f"otherNode: {otherNode.id}")
 
             if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(
                 otherNode.id
@@ -116,15 +114,14 @@ class Graph():
 
                 if last_marked:
                     return path, True, markedNodes
-            # print(f"next iteration")
-
+                
         return path, False, markedNodes
 
     def findMaxFlow(self, nodes):
         maxFlow = 0
 
         path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
-        # print(f"ispath: {isPath}")
+
         while isPath:
             bottle = 9223372036854775807
             v = self.sink
@@ -140,7 +137,6 @@ class Graph():
                 v_edge.addResidualFlowTo(bottle, v)
                 v = v_edge.getOther(v)
 
-            # print(f"bottle: {bottle}")
             maxFlow += bottle
             path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
 
