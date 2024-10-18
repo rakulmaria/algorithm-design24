@@ -104,7 +104,6 @@ class Graph():
             currentNode = queue.get()
             
             for edge in currentNode.adjacentEdges:
-                print("---")
                 otherNode = edge.getOther(currentNode)
 
                 if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(otherNode.id):
@@ -150,19 +149,20 @@ class Graph():
 
         for i in range(N):
             n = int(stdin.readline())
-            if n < curMin:
-                curMin = n
-            if n > curMax:
-                curMax = n
+            curMin = min(curMin, n)
+            curMax = max(curMax, n)
             nodes.append(n)
             dict[n] = i
 
         # create the edges
         for i in range(len(nodes)):
+            f.write(f"{i}\n")
+            
             n = nodes[i]
             n1 = Node(n, source=n==curMin, sink=n==curMax)
             self.addNode(n1)
             for j in range(i+1, len(nodes)):
+                f.write(f"- {j}\n")
                 m = nodes[j]
                 n2 = Node(m, source=m==curMin, sink=m==curMax)
                 self.addNode(n2)
@@ -173,9 +173,10 @@ class Graph():
                     self.addEdge(edge1)
                     self.addEdge(edge2)
                         
-        print(self.findMaxFlow())
-        self.printGraph()
+        #print(self.findMaxFlow())
+        #self.printGraph()
 
+f = open("output.txt", "w")
 start_time = time.time()     
 path = {}        
 graph = Graph()

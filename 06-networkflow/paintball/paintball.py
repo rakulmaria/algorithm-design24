@@ -16,7 +16,7 @@ class Node():
             self.adjacentEdges[edge] = edge 
 
     def printNode(self):
-        print(f"ID: {self.id} isSource: {self.isSource} isSink: {self.isSink}")
+        return f"ID: {self.id} isSource: {self.isSource} isSink: {self.isSink}\n - len(adjEdges): {len(self.adjacentEdges)}"
 
 class Edge():
     def __init__(self, _from, _to, _capacity = 1):
@@ -51,7 +51,7 @@ class Edge():
             return False
         
     def printEdge(self):
-        print(self._from.id, "->", self._to.id, "FLOW:", self._flow, "CAPACITY:", self._capacity)
+        return self._from.id, "->", self._to.id, "FLOW:", self._flow, "CAPACITY:", self._capacity
 
 class Graph():
     def __init__(self):
@@ -89,55 +89,67 @@ class Graph():
     def getGraphSize(self):
         return len(self.mapOfNodes)            
 
-    def findPath(self, _from: Node, _to: Node):
-        markedNodes = {}
-        queue = Queue(maxsize=len(self.mapOfNodes))
-        
-        markedNodes[_from.id] = True 
+    def findPath(self, _from: Node, _to: Node, nodes, path=None, markedNodes=None):
+        #print(f"nodes: {nodes}")
+        if path is None:
+            path = {}
+        if markedNodes is None:
+            markedNodes = {}
 
-        queue.put(item=_from)             # and put it on the queue
+        markedNodes[_from.id] = True
 
-        while not queue.empty():
-            currentNode = queue.get()
-            
-            for edge in currentNode.adjacentEdges:
-                otherNode = edge.getOther(currentNode)
+        for edge in _from.adjacentEdges:
+            otherNode = edge.getOther(_from)
 
-                if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(otherNode.id):
-                    path[otherNode.id] = edge
-                    markedNodes[otherNode.id] = True 
-                    queue.put(otherNode)
-            
-        
-        return markedNodes.get(_to.id)
+            if edge.residualCapacityTo(otherNode) > 0 and not markedNodes.get(
+                otherNode.id
+            ):
+                path[otherNode.id] = edge
+                markedNodes[otherNode.id] = True
 
+                if otherNode.id == _to.id:
+                    return path, True, markedNodes
+                print(f"nodes: {nodes}")
+                path, last_marked, markedNodes = self.findPath(
+                    otherNode, _to, nodes, path, markedNodes
+                )
 
-    def findMaxFlow(self):
+                if last_marked:
+                    return path, True, markedNodes
+
+        return path, False, markedNodes
+
+    def findMaxFlow(self, nodes):
+        #print(f"nodes: {nodes}")
         maxFlow = 0
-        global path
 
-        while(self.findPath(self.source, self.sink)):
+        path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
+        while isPath:
             bottle = 9223372036854775807
             v = self.sink
 
             while v.id is not self.source.id:
-                bottle = min(bottle, path.get(v.id).residualCapacityTo(v))
-                v = path.get(v.id).getOther(v)
+                v_edge = path.get(v.id)
+                bottle = min(bottle, v_edge.residualCapacityTo(v))
+                v = v_edge.getOther(v)
 
             v = self.sink
             while v.id is not self.source.id:
-                path.get(v.id).addResidualFlowTo(bottle, v)
-                v = path.get(v.id).getOther(v)
+                v_edge = path.get(v.id)
+                v_edge.addResidualFlowTo(bottle, v)
+                v = v_edge.getOther(v)
 
-            
             maxFlow += bottle
-
-            path = {}
-        
+            print(f"nodes: {nodes}")
+            path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
         return maxFlow
     
     def createGraph(self):
         N, M = map(int, stdin.readline().split())
+
+        if M < (N / 2):
+            print("Impossible")
+            return
 
 
         source = Node(0, source=True)
@@ -157,19 +169,21 @@ class Graph():
             self.addEdge(edge1)
             self.addEdge(edge2)
 
-        for i in range(M):
+        for _ in range(M):
             A, B = map(int, stdin.readline().split())
             edge1 = Edge(self.getNode(A), self.getNode(-B))
             edge2 = Edge(self.getNode(B), self.getNode(-A))
             self.addEdge(edge1)
             self.addEdge(edge2)
 
-        self.findMaxFlow()
-        self.printGraph()
+        print(f"maxflow: {self.findMaxFlow(len(self.mapOfNodes))}")
+
+        #self.printGraph()
 
         res = []
         for edge in self.mapOfEdges:
-            if edge._from.id != 0 and edge._to.id != N + 1 and edge._flow > 0:
+            if edge._flow > 0: # edge._from.id != 0 and edge._to.id != N + 1 and 
+                print(f"in result: {edge.printEdge()}")
                 res.append((edge._from.id, abs(edge._to.id)))
 
 
@@ -178,6 +192,7 @@ class Graph():
             print("Impossible")
         else:
             res.sort()
+            print(res)
             for ele in res:
                 print(ele[1])
 
