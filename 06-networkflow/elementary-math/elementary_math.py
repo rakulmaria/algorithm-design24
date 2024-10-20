@@ -203,7 +203,7 @@ class Graph():
                 elif a * b == res:
                     result.append(f"{a} * {b} = {res}")
 
-        if self.maxFlow != N:
+        if len(result) != N:
             print("impossible")
         else:
             print(*result, sep="\n")

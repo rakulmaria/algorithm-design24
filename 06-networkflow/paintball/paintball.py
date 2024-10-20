@@ -1,8 +1,7 @@
+# Ford-Fulkerson implementation made together with Silke Bonnen for bachelors project in spring 2024
+# Improvements added autumn 2024 by Silke Bonnen
 
-
-from queue import Queue
 from sys import stdin
-
 
 class Node():
     def __init__(self, id, source=False, sink=False):
@@ -81,16 +80,15 @@ class Graph():
         
     def printGraph(self):
         for key, value in self.mapOfNodes.items():
-            value.printNode()
+            print(value.printNode())
 
         for key, value in self.mapOfEdges.items():
-            key.printEdge()
+            print(key.printEdge())
 
     def getGraphSize(self):
         return len(self.mapOfNodes)            
 
     def findPath(self, _from: Node, _to: Node, nodes, path=None, markedNodes=None):
-        #print(f"nodes: {nodes}")
         if path is None:
             path = {}
         if markedNodes is None:
@@ -109,7 +107,6 @@ class Graph():
 
                 if otherNode.id == _to.id:
                     return path, True, markedNodes
-                print(f"nodes: {nodes}")
                 path, last_marked, markedNodes = self.findPath(
                     otherNode, _to, nodes, path, markedNodes
                 )
@@ -120,7 +117,6 @@ class Graph():
         return path, False, markedNodes
 
     def findMaxFlow(self, nodes):
-        #print(f"nodes: {nodes}")
         maxFlow = 0
 
         path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
@@ -140,7 +136,6 @@ class Graph():
                 v = v_edge.getOther(v)
 
             maxFlow += bottle
-            print(f"nodes: {nodes}")
             path, isPath, m = self.findPath(self.source, self.sink, nodes, {}, {})
         return maxFlow
     
@@ -150,7 +145,6 @@ class Graph():
         if M < (N / 2):
             print("Impossible")
             return
-
 
         source = Node(0, source=True)
         sink = Node(N + 1, sink=True)
@@ -176,23 +170,17 @@ class Graph():
             self.addEdge(edge1)
             self.addEdge(edge2)
 
-        print(f"maxflow: {self.findMaxFlow(len(self.mapOfNodes))}")
-
-        #self.printGraph()
+        self.findMaxFlow(len(self.mapOfNodes))
 
         res = []
         for edge in self.mapOfEdges:
-            if edge._flow > 0: # edge._from.id != 0 and edge._to.id != N + 1 and 
-                print(f"in result: {edge.printEdge()}")
+            if edge._flow > 0 and edge._from.id != 0 and edge._to.id != N + 1: 
                 res.append((edge._from.id, abs(edge._to.id)))
 
-
-        print(len(res))
         if len(res) != N:
             print("Impossible")
         else:
             res.sort()
-            print(res)
             for ele in res:
                 print(ele[1])
 
