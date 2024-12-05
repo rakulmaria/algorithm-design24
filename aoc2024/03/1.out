@@ -1,0 +1,47 @@
+None None None
+mul(2,4) None None
+--- wait = False and mul = mul(2,4) ---
+res = 8
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None don't()
+--- wait = True ---
+None None None
+mul(5,5) None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+mul(11,8) None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None None None
+None do() None
+--- wait = False ---
+None None None
+mul(8,5) None None
+--- wait = False and mul = mul(8,5) ---
+res = 48
+None None None
+None None None
+48
